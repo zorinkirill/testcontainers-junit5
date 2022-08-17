@@ -1,0 +1,47 @@
+plugins {
+    id "jacoco"
+}
+
+jacoco {
+    toolVersion = "$jacocoToolVersion"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.0
+            }
+        }
+        rule {
+            limit {
+                counter = 'BRANCH'
+                minimum = 1.0
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    include("**/*Test.class", "**/*Tests.class")
+    check.dependsOn jacocoTestCoverageVerification
+    finalizedBy jacocoTestReport
+}
+
+dependencies {
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+}
