@@ -1,0 +1,22 @@
+plugins {
+    id "java-library-convention"
+    id "java-testing-convention"
+}
+
+dependencies {
+    compileOnly project(":testcontainers-junit4-mock")
+    implementation "org.springframework:spring-core"
+    implementation "org.apache.logging.log4j:log4j-api"
+    implementation "org.junit.jupiter:junit-jupiter-api"
+    implementation "org.testcontainers:testcontainers"
+
+    testImplementation project(":testcontainers-junit4-mock")
+    testImplementation "org.springframework:spring-test"
+    testImplementation "org.springframework.boot:spring-boot-test"
+    testImplementation "org.junit.platform:junit-platform-suite-api"
+    testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testRuntimeOnly "org.junit.platform:junit-platform-suite-engine"
+    testImplementation "org.junit.platform:junit-platform-testkit"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "org.apache.logging.log4j:log4j-core"
+}

@@ -1,0 +1,45 @@
+plugins {
+    id "idea"
+    id "java-library"
+    id "checkstyle"
+}
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.compilerArgs << '-parameters'
+}
+
+configurations {
+    all {
+        exclude group: "junit", module: "junit"
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+        exclude group: "commons-logging", module: "commons-logging"
+        exclude group: "ch.qos.logback", module: "logback-core"
+        exclude group: "ch.qos.logback", module: "logback-classic"
+    }
+}
+
+checkstyle {
+    toolVersion = "$checkstyleToolVersion"
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+dependencies {
+    api platform(project(":platform"))
+    implementation platform(project(":platform"))
+    compileOnly platform(project(":platform"))
+    annotationProcessor platform(project(":platform"))
+    testImplementation platform(project(":platform"))
+    testCompileOnly platform(project(":platform"))
+    testAnnotationProcessor platform(project(":platform"))
+
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    testCompileOnly "org.projectlombok:lombok"
+    testAnnotationProcessor "org.projectlombok:lombok"
+}

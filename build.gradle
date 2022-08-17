@@ -1,0 +1,44 @@
+plugins {
+    id "idea"
+    id "jacoco"
+}
+
+jacoco {
+    toolVersion = "$jacocoToolVersion"
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+    subprojects {
+        plugins.withType(JacocoPlugin) {
+            tasks.matching { it.extensions.findByType(JacocoTaskExtension) != null }.all { Task task ->
+                sourceSets(sourceSets.main)
+                classDirectories.setFrom files(classDirectories.files.collect {
+                    fileTree(dir: it)
+                })
+                executionData(task)
+            }
+        }
+    }
+
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+    }
+
+    onlyIf = {
+        true
+    }
+}
+
+wrapper {
+    gradleVersion = "7.1"
+}

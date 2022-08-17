@@ -1,0 +1,5 @@
+rootProject.name = "testcontainers-junit5"
+
+include "platform",
+        "testcontainers-junit4-mock",
+        "testcontainers-junit5"
