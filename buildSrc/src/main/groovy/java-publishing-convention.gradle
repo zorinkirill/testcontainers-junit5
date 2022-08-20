@@ -1,0 +1,49 @@
+plugins {
+    id "maven-publish"
+    id "signing"
+}
+
+def isSnapshot = project.version.toString().endsWith("-SNAPSHOT")
+
+signing {
+    required = !isSnapshot && hasProperty("signingKey") && hasProperty("signingPassword")
+
+    useInMemoryPgpKeys(findProperty("signingKey"), findProperty("signingPassword"))
+
+    sign publishing.publications
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            if (project.getPluginManager().hasPlugin("java-platform")) {
+                from components.javaPlatform
+            } else {
+                from components.java
+            }
+            pom {
+                name = "${project.group}:${project.name}"
+                description = "JUnit5 Jupiter Extensions for Testcontainers"
+                url = "https://github.com/zorinkirill/testcontainers-junit5"
+                scm {
+                    connection = "scm:git:git://github.com/zorinkirill/testcontainers-junit5.git"
+                    developerConnection = "scm:git:git://github.com/zorinkirill/testcontainers-junit5.git"
+                    url = "https://github.com/zorinkirill/testcontainers-junit5"
+                }
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'http://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = "zorinkirill"
+                        name = "Kirill Zorin"
+                        email = "zorin.kirill.serg@yandex.ru"
+                    }
+                }
+            }
+        }
+    }
+}

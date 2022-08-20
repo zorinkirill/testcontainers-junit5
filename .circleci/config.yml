@@ -1,0 +1,149 @@
+version: 2.1
+executors:
+  main-executor:
+    docker:
+      - image: circleci/openjdk:11.0.1
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+jobs:
+  build:
+    executor: main-executor
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            - v1-dependencies-
+
+      - run: |
+          sudo chmod +x ./gradlew
+          ./gradlew dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run: ./gradlew check
+
+      - run: ./gradlew jacocoRootReport
+      - store_artifacts:
+          path:  build/reports
+  publish_tag:
+    executor: main-executor
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run: |
+          sudo chmod +x ./gradlew
+          ./gradlew artifactoryPublish -P version=$CIRCLE_TAG
+  publish_branch:
+    executor: main-executor
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run: |
+          PUBLISH_VERSION=0.1.0
+
+          if [[ "$CIRCLE_BRANCH" == "master" ]]
+          then
+            echo "Resolving version from master"
+            LATEST_TAG=$(git tag -l --sort -version:refname | grep '^\(0\|[1-9][0-9]*\)\.\(0\|[1-9][0-9]*\)\.\(0\|[1-9][0-9]*\)$' || true | sort -nr | head -1)
+            echo "Latest tag (without suffix): $LATEST_TAG"
+            if [[ -n "$LATEST_TAG" ]]
+            then
+              # increment patch version
+              LATEST_TAG_WITH_SPACES=(${LATEST_TAG//./ })
+              MAJOR=${LATEST_TAG_WITH_SPACES[0]}
+              MINOR=${LATEST_TAG_WITH_SPACES[1]}
+              PATCH=${LATEST_TAG_WITH_SPACES[2]}
+              PATCH=$((PATCH+1))
+
+              PUBLISH_VERSION = "$MAJOR.$MINOR.$PATCH"
+            fi
+          fi
+
+          if [[ "$CIRCLE_BRANCH" =~ ^release\/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          then
+            echo "Resolving version from $CIRCLE_BRANCH"
+            PUBLISH_VERSION=$(echo "$CIRCLE_BRANCH" | sed -s 's/release\/\(.\+\)/\1/')
+            echo "Current release version: $PUBLISH_VERSION"
+          fi
+
+          PUBLISH_VERSION="$PUBLISH_VERSION-SNAPSHOT"
+          echo "Setting version to $PUBLISH_VERSION"
+
+          sudo chmod +x ./gradlew
+          ./gradlew artifactoryPublish -P version=$PUBLISH_VERSION
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore:
+                - master
+                - /release\/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)/
+  publish_from_tag:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - publish_tag:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+  publish_from_master:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+      - publish_branch:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+  publish_from_release:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - /release\/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)/
+      - request-publish:
+          type: approval
+          requires:
+            - build
+      - publish_branch:
+          requires:
+            - request-publish
+          filters:
+            branches:
+              only:
+                - /release\/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)/
