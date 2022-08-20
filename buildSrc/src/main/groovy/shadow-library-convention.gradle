@@ -1,0 +1,21 @@
+plugins {
+    id "java-library-convention"
+    id "com.github.johnrengelman.shadow"
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+    prefix = "com.kappadrive"
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveClassifier.set(null)
+    dependsOn(tasks.relocateShadowJar)
+}
+
+dependencies {
+    shadow platform(project(":platform"))
+}

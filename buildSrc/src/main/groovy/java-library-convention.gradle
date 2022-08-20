@@ -4,12 +4,23 @@ plugins {
     id "checkstyle"
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 compileJava {
     options.compilerArgs << '-parameters'
+    options.encoding = 'UTF-8'
 }
 
 compileTestJava {
     options.compilerArgs << '-parameters'
+    options.encoding = 'UTF-8'
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
 }
 
 configurations {

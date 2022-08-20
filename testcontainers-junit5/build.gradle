@@ -1,11 +1,12 @@
 plugins {
-    id "java-library-convention"
+    id "shadow-library-convention"
     id "java-testing-convention"
+    id "java-publishing-convention"
 }
 
 dependencies {
     compileOnly project(":testcontainers-junit4-mock")
-    implementation "org.springframework:spring-core"
+    shadow "org.springframework:spring-core"
     implementation "org.apache.logging.log4j:log4j-api"
     implementation "org.junit.jupiter:junit-jupiter-api"
     implementation "org.testcontainers:testcontainers"
