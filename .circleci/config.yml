@@ -2,7 +2,7 @@ version: 2.1
 executors:
   main-executor:
     docker:
-      - image: circleci/openjdk:11.0.1
+      - image: cimg/openjdk:11.0.13
 
     working_directory: ~/repo
 
