@@ -2,7 +2,7 @@ version: 2.1
 executors:
   main-executor:
     docker:
-      - image: circleci/openjdk:11.0.1
+      - image: cimg/openjdk:11.0.13
 
     working_directory: ~/repo
 
@@ -14,7 +14,18 @@ jobs:
     executor: main-executor
     steps:
       - checkout
-
+      - setup_remote_docker:
+          version: 20.10.2
+          docker_layer_caching: true
+      - run:
+          name: Setup Environment Variables
+          command: |
+            echo "export TESTCONTAINERS_HOST_OVERRIDE=localhost" \
+              >> $BASH_ENV
+      - run:
+          name: Testcontainers tunnel
+          background: true
+          command: .circleci/autoforward.py
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
