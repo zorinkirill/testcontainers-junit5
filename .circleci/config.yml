@@ -98,7 +98,7 @@ jobs:
           echo "Setting version to $PUBLISH_VERSION"
 
           sudo chmod +x ./gradlew
-          ./gradlew artifactoryPublish -P version=$PUBLISH_VERSION
+          ./gradlew assemble publishToSonatype closeAndReleaseSonatypeStagingRepository -P version=$CIRCLE_TAG
 
 workflows:
   version: 2
