@@ -1,4 +1,8 @@
 version: 2.1
+
+orbs:
+  coveralls: coveralls/coveralls@1.0.6
+
 executors:
   main-executor:
     docker:
@@ -9,6 +13,7 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
+
 jobs:
   build:
     executor: main-executor
@@ -42,9 +47,10 @@ jobs:
 
       - run: ./gradlew check
 
-      - run: ./gradlew jacocoRootReport
+      - run: ./gradlew jacocoRootReport coveralls
       - store_artifacts:
           path:  build/reports
+      - coveralls/upload
   publish_tag:
     executor: main-executor
     steps:

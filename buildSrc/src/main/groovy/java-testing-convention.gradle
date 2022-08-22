@@ -9,9 +9,9 @@ jacoco {
 jacocoTestReport {
     dependsOn test
     reports {
-        xml.required = false
         csv.required = false
-        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+        xml.required = false
+        html.required = true
     }
 }
 

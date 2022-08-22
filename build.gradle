@@ -1,6 +1,7 @@
 plugins {
     id "idea"
     id "jacoco"
+    id "com.github.kt3k.coveralls"
     id "io.github.gradle-nexus.publish-plugin"
 }
 
@@ -40,14 +41,18 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     }
 
     reports {
-        xml.required = false
         csv.required = false
-        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+        xml.required = true
+        html.required = true
     }
 
     onlyIf = {
         true
     }
+}
+
+coveralls {
+    jacocoReportPath "build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
 wrapper {
