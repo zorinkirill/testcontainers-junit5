@@ -7,7 +7,6 @@ executors:
   main-executor:
     docker:
       - image: cimg/openjdk:11.0.13
-      - image: cimg/node:18.6.0
 
     working_directory: ~/repo
 
@@ -51,7 +50,6 @@ jobs:
       - run: ./gradlew jacocoRootReport coveralls
       - store_artifacts:
           path:  build/reports
-      - coveralls/upload
   publish_tag:
     executor: main-executor
     steps:
