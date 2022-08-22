@@ -7,7 +7,7 @@ executors:
   main-executor:
     docker:
       - image: cimg/openjdk:11.0.13
-      - image: circleci/node:10.0.0
+      - image: cimg/node:18.7.0
 
     working_directory: ~/repo
 
