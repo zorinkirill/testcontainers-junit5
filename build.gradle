@@ -53,6 +53,9 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
 
 coveralls {
     jacocoReportPath "build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+    subprojects.findAll { it.getPluginManager().hasPlugin("jacoco") }.sourceSets.main.allSource.srcDirs*.path.each {
+        sourceDirs.addAll(it)
+    }
 }
 
 wrapper {
