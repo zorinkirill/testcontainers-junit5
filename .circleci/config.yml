@@ -60,6 +60,7 @@ jobs:
             - v1-dependencies-{{ checksum "build.gradle" }}
 
       - run: |
+          export ORG_GRADLE_PROJECT_signingKey=$(echo $GPG_KEY | base64 -d)
           sudo chmod +x ./gradlew
           ./gradlew assemble publishToSonatype closeAndReleaseSonatypeStagingRepository -P version=$CIRCLE_TAG
   publish_branch:
