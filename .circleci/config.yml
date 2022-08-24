@@ -61,7 +61,7 @@ jobs:
 
       - run: |
           sudo chmod +x ./gradlew
-          ./gradlew artifactoryPublish -P version=$CIRCLE_TAG
+          ./gradlew assemble publishToSonatype closeAndReleaseSonatypeStagingRepository -P version=$CIRCLE_TAG
   publish_branch:
     executor: main-executor
     steps:
@@ -88,7 +88,7 @@ jobs:
               PATCH=${LATEST_TAG_WITH_SPACES[2]}
               PATCH=$((PATCH+1))
 
-              PUBLISH_VERSION = "$MAJOR.$MINOR.$PATCH"
+              PUBLISH_VERSION="$MAJOR.$MINOR.$PATCH"
             fi
           fi
 
